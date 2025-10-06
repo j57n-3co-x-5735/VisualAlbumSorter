@@ -1,0 +1,53 @@
+{
+  "task": {
+    "name": "Image Classification Task",
+    "description": "Classify images based on visual characteristics",
+    "prompt": "Describe what you see in this image.",
+    "classification_rules": {
+      "type": "regex_match",
+      "rules": [
+        {
+          "name": "rule_1",
+          "pattern": "pattern_here",
+          "field": "normalized_response"
+        }
+      ],
+      "match_all": true
+    }
+  },
+  "provider": {
+    "type": "ollama",
+    "settings": {
+      "model": "model_name_here",
+      "api_url": "http://127.0.0.1:11434/api/generate",
+      "max_retries": 3,
+      "timeout": 30,
+      "max_image_size_mb": 50,
+      "max_image_dimension_px": 0
+    }
+  },
+  "album": {
+    "name": "Sorted_Photos",
+    "create_if_missing": true
+  },
+  "processing": {
+    "batch_size": 100,
+    "album_update_frequency": 5,
+    "skip_types": ["HEIC", "GIF"],
+    "skip_videos": true,
+    "debug_mode": false,
+    "debug_limit": 1
+  },
+  "storage": {
+    "temp_dir": "~/Pictures/PhotoSorterTemp",
+    "state_file": "state.json",
+    "done_file": "done.txt",
+    "log_file": "photo_sorter.log"
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "console": true,
+    "file": true
+  }
+}

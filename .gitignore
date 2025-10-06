@@ -1,0 +1,36 @@
+# Bytecode and Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# Test/coverage artefacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build and packaging
+build/
+dist/
+*.egg-info/
+
+# macOS cruft
+.DS_Store
+
+# Local tooling / IDE
+.idea/
+.vscode/
+
+# Project-specific ignores
+BACKUP/
+Lib/
+Archive.zip
+plan/
+visualalbumsorter.egg-info/
+issues-*.md
+TASKS-*.md
+photo_sorter.py

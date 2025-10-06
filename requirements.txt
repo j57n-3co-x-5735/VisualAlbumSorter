@@ -1,0 +1,21 @@
+# Core dependencies for Visual Album Sorter
+osxphotos>=0.68.0
+photoscript>=0.3.0
+requests>=2.31.0
+Pillow>=10.0.0
+
+# The above packages will automatically install their dependencies including:
+# - PyObjC frameworks for macOS integration
+# - osxmetadata for file metadata handling
+# - Various utility packages
+
+# Optional: For MLX VLM provider (Apple Silicon only)
+# mlx-vlm>=0.0.11
+
+# Note: This application requires:
+# - macOS (due to Photos.app integration)
+# - Python 3.8+
+# - One of the following AI providers:
+#   - Ollama (with vision model like qwen2.5vl:3b)
+#   - LM Studio (with vision model like qwen2.5-omni)
+#   - MLX VLM (Apple Silicon only)

@@ -1,0 +1,446 @@
+# Test Case Definitions - Visual Album Sorter
+# Format: YAML for easy parsing and test generation
+
+test_suite:
+  name: "Visual Album Sorter Test Suite"
+  version: "1.0.0"
+  last_updated: "2025-01-11"
+
+# P0 Priority - Critical Test Cases (ROI > 8.0)
+p0_test_cases:
+  TC01:
+    name: "Verify photo classification with valid JPG"
+    category: "Core Logic"
+    roi_score: 9.2
+    automated: true
+    test_data:
+      - valid_photo.jpg
+      - valid_photo_with_metadata.jpg
+    steps:
+      - Load valid JPG image
+      - Apply classification with test prompt
+      - Verify response parsing
+      - Check classification result
+    expected_results:
+      - Classification returns "yes" or "no"
+      - No errors raised
+      - Response time < 5 seconds
+    edge_cases:
+      - Very small image (100x100)
+      - Very large image (8000x8000)
+      - Image with EXIF data
+      - Image without metadata
+
+  TC03:
+    name: "State persistence across interruptions"
+    category: "Data Integrity"
+    roi_score: 9.5
+    automated: true
+    test_data:
+      - state_files/partial_state.json
+      - state_files/corrupted_state.json
+    steps:
+      - Start processing batch of 100 photos
+      - Interrupt after 50 photos
+      - Verify state file saved
+      - Resume processing
+      - Verify continuation from photo 51
+    expected_results:
+      - State file contains last_index: 50
+      - Done file has 50 entries
+      - Resume picks up at correct position
+      - No duplicate processing
+
+  TC10:
+    name: "API timeout and retry logic"
+    category: "Resilience"
+    roi_score: 9.1
+    automated: true
+    test_scenarios:
+      - timeout_after_1s
+      - timeout_after_10s
+      - intermittent_timeouts
+    steps:
+      - Mock API to timeout
+      - Attempt classification
+      - Verify retry attempts
+      - Check exponential backoff
+      - Verify final failure handling
+    expected_results:
+      - 3 retry attempts made
+      - Exponential backoff observed
+      - Appropriate error logged
+      - Processing continues with next photo
+
+  TC13:
+    name: "Regex pattern matching accuracy"
+    category: "Core Logic"
+    roi_score: 9.3
+    automated: true
+    test_patterns:
+      - pattern: "\\b(yellow|blonde)\\b"
+        test_cases:
+          - input: "yellow hair"
+          - expected: true
+          - input: "yellowish hair"
+          - expected: false
+      - pattern: "fox\\s+ears?"
+        test_cases:
+          - input: "fox ears visible"
+          - expected: true
+          - input: "foxlike ears"
+          - expected: false
+    steps:
+      - Load classification rules
+      - Apply to test responses
+      - Verify pattern matching
+    expected_results:
+      - All positive cases match
+      - All negative cases don't match
+      - Case sensitivity handled correctly
+
+  TC14:
+    name: "State file corruption recovery"
+    category: "Recovery"
+    roi_score: 8.7
+    automated: true
+    corruption_scenarios:
+      - invalid_json
+      - missing_fields
+      - type_mismatches
+      - file_locked
+    steps:
+      - Corrupt state file
+      - Attempt to load processor
+      - Verify recovery mechanism
+      - Check backup creation
+      - Verify clean start
+    expected_results:
+      - Corruption detected
+      - Backup created if possible
+      - Clean state initialized
+      - Warning logged
+      - Processing continues
+
+  TC05:
+    name: "Album creation and photo addition"
+    category: "Integration"
+    roi_score: 9.0
+    automated: true
+    scenarios:
+      - album_exists
+      - album_missing
+      - album_name_conflict
+    steps:
+      - Check album existence
+      - Create if missing
+      - Add matched photos
+      - Verify album contents
+      - Check photo metadata
+    expected_results:
+      - Album created/found correctly
+      - Photos added without duplicates
+      - Metadata preserved
+      - Album count accurate
+
+  TC16:
+    name: "Provider response parsing"
+    category: "Integration"
+    roi_score: 8.8
+    automated: true
+    providers:
+      - ollama
+      - lm_studio
+      - mlx_vlm
+    response_formats:
+      - json_response
+      - plain_text
+      - multiline
+      - with_special_chars
+    steps:
+      - Mock provider responses
+      - Parse each format
+      - Extract classification
+      - Handle edge cases
+    expected_results:
+      - All formats parsed correctly
+      - Special characters handled
+      - Consistent results across providers
+
+  TC04:
+    name: "Provider failover scenarios"
+    category: "Resilience"
+    roi_score: 8.6
+    automated: true
+    failure_modes:
+      - provider_offline
+      - provider_overloaded
+      - invalid_credentials
+      - model_not_found
+    steps:
+      - Configure primary provider
+      - Simulate failure
+      - Verify detection
+      - Check failover attempt
+      - Validate error handling
+    expected_results:
+      - Failure detected quickly
+      - Appropriate error messages
+      - Graceful degradation
+      - Clear user notification
+
+  TC07:
+    name: "Configuration schema validation"
+    category: "Validation"
+    roi_score: 8.9
+    automated: true
+    test_configs:
+      - valid_minimal.json
+      - valid_complete.json
+      - missing_required.json
+      - invalid_types.json
+      - extra_fields.json
+    steps:
+      - Load configuration
+      - Validate schema
+      - Check field types
+      - Verify defaults
+      - Test merging
+    expected_results:
+      - Valid configs accepted
+      - Invalid configs rejected
+      - Clear error messages
+      - Defaults applied correctly
+
+  TC15:
+    name: "Photos library permissions"
+    category: "Security"
+    roi_score: 8.4
+    automated: true
+    permission_scenarios:
+      - full_access
+      - read_only
+      - no_access
+      - partial_access
+    steps:
+      - Check library permissions
+      - Attempt operations
+      - Verify error handling
+      - Check security prompts
+    expected_results:
+      - Permissions detected correctly
+      - Appropriate errors for denied access
+      - No security bypasses
+      - Clear user guidance
+
+# P1 Priority - Important Test Cases (ROI 5.0-8.0)
+p1_test_cases:
+  TC09:
+    name: "Duplicate photo handling"
+    category: "Edge Cases"
+    roi_score: 7.8
+    automated: true
+    scenarios:
+      - exact_duplicate
+      - similar_photos
+      - same_uuid_different_content
+    
+  TC11:
+    name: "Skip logic for video files"
+    category: "Business Logic"
+    roi_score: 7.5
+    automated: true
+    file_types:
+      - .mov
+      - .mp4
+      - .avi
+      - .gif
+      - .heic
+
+  TC12:
+    name: "Diagnostic data accuracy"
+    category: "Monitoring"
+    roi_score: 7.2
+    automated: true
+    metrics_to_verify:
+      - processing_times
+      - match_counts
+      - error_counts
+      - skip_reasons
+
+  TC18:
+    name: "Corrupted image handling"
+    category: "Error Handling"
+    roi_score: 7.6
+    automated: true
+    corruption_types:
+      - truncated_file
+      - invalid_header
+      - zero_byte_file
+      - wrong_extension
+
+  TC19:
+    name: "CLI argument parsing"
+    category: "Input Validation"
+    roi_score: 7.0
+    automated: true
+    test_arguments:
+      - valid_args
+      - missing_required
+      - invalid_values
+      - conflicting_options
+
+  TC25:
+    name: "JSON config merging"
+    category: "Configuration"
+    roi_score: 6.8
+    automated: true
+    merge_scenarios:
+      - base_plus_override
+      - nested_objects
+      - array_handling
+      - null_values
+
+# P2 Priority - Nice to Have (ROI < 5.0)
+p2_test_cases:
+  TC20:
+    name: "Maximum file path length"
+    category: "Boundary"
+    roi_score: 5.8
+    automated: true
+
+  TC22:
+    name: "Non-English filenames"
+    category: "I18n"
+    roi_score: 5.5
+    automated: true
+
+  TC23:
+    name: "Log rotation and cleanup"
+    category: "Maintenance"
+    roi_score: 5.2
+    automated: true
+
+# Manual Test Cases
+manual_test_cases:
+  TC21:
+    name: "Visual verification of matches"
+    category: "Validation"
+    requires_human: true
+    steps:
+      - Review sample of matched photos
+      - Verify classification accuracy
+      - Check for false positives
+      - Check for false negatives
+    checklist:
+      - Hair color correct?
+      - Ears type correct?
+      - Tail type correct?
+      - Overall match quality?
+
+# Performance Benchmarks
+performance_tests:
+  PT01:
+    name: "Large batch processing"
+    metrics:
+      - photos_per_second
+      - memory_usage
+      - cpu_usage
+    thresholds:
+      photos_per_second: ">= 10"
+      memory_usage: "< 2GB"
+      cpu_usage: "< 80%"
+    test_sizes:
+      - 100
+      - 1000
+      - 10000
+
+  PT02:
+    name: "Concurrent processing"
+    concurrent_operations:
+      - 2
+      - 5
+      - 10
+    expected_behavior:
+      - No race conditions
+      - Proper locking
+      - Consistent state
+
+# Regression Test Suite
+regression_suite:
+  smoke_tests:
+    duration: "5 minutes"
+    tests:
+      - provider_connectivity
+      - basic_classification
+      - config_loading
+      - state_creation
+
+  critical_path:
+    duration: "30 minutes"
+    tests:
+      - TC01
+      - TC03
+      - TC05
+      - TC13
+      - TC14
+
+  full_regression:
+    duration: "2 hours"
+    tests: "all_p0_and_p1"
+
+# Test Data Requirements
+test_data:
+  images:
+    valid:
+      - format: jpg
+        sizes: [small, medium, large]
+      - format: png
+        sizes: [small, medium, large]
+    invalid:
+      - corrupted_header.jpg
+      - truncated.jpg
+      - zero_bytes.jpg
+    edge_cases:
+      - 10mb_image.jpg
+      - 1x1_pixel.jpg
+      - cmyk_colorspace.jpg
+
+  configurations:
+    valid:
+      - minimal_config.json
+      - complete_config.json
+      - multi_provider.json
+    invalid:
+      - missing_task.json
+      - invalid_provider.json
+      - malformed.json
+
+  state_files:
+    - fresh_state.json
+    - partial_state.json
+    - completed_state.json
+    - corrupted_state.json
+
+# Automation Framework Requirements
+automation:
+  framework: pytest
+  required_plugins:
+    - pytest-cov
+    - pytest-mock
+    - pytest-asyncio
+    - pytest-benchmark
+    - pytest-xdist
+  
+  fixtures_needed:
+    - mock_photos_library
+    - mock_provider
+    - temp_directories
+    - sample_images
+    - test_configs
+    
+  utilities_needed:
+    - image_generator
+    - state_file_creator
+    - response_mocker
+    - performance_profiler

@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=62", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "visualalbumsorter"
+version = "0.1.0"
+description = "Visual Album Sorter (vasort) – on-device album automation"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Visual Album Sorter Contributors" }]
+license = { text = "MIT" }
+keywords = ["macos", "photos", "automation", "vision", "cli"]
+dependencies = [
+    "osxphotos>=0.68.0",
+    "photoscript>=0.3.0",
+    "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+tests = [
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
+    "pytest-mock>=3.12",
+]
+
+[project.scripts]
+vasort = "visualalbumsorter.cli:main"
+visualalbumsorter = "visualalbumsorter.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["visualalbumsorter*", "src*"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra"
+testpaths = ["tests"]
